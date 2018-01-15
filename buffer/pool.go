@@ -9,13 +9,13 @@ const (
 	MaxGCTime = time.Second
 )
 
-type BufferPool struct {
+type Pool struct {
 	pool       *sync.Pool
 	collection chan *Buffer
 }
 
-func (bp *BufferPool) Get() (buf *Buffer, fromPool bool) {
-	bufObj := bp.pool.Get()
+func (p *Pool) Get() (buf *Buffer, fromPool bool) {
+	bufObj := p.pool.Get()
 	if bufObj == nil {
 		buf = NewBuffer()
 	} else {
@@ -26,10 +26,10 @@ func (bp *BufferPool) Get() (buf *Buffer, fromPool bool) {
 	return
 }
 
-func (bp *BufferPool) Put(buf *Buffer, fromPool bool) {
+func (p *Pool) Put(buf *Buffer, fromPool bool) {
 	if fromPool && buf != nil {
 		select {
-		case bp.collection <- buf:
+		case p.collection <- buf:
 		default:
 			// put buffer fail
 			// this case will use temporary obj
@@ -38,25 +38,25 @@ func (bp *BufferPool) Put(buf *Buffer, fromPool bool) {
 	}
 }
 
-func (bp *BufferPool) run() {
-	for buf := range bp.collection {
+func (p *Pool) run() {
+	for buf := range p.collection {
 		if buf.GC(MaxGCTime) {
-			bp.pool.Put(buf)
+			p.pool.Put(buf)
 		}
 	}
 }
 
-func NewBufferPool(initSize, maxSize int) *BufferPool {
+func NewPool(initSize, maxSize int) *Pool {
 	if maxSize < initSize {
 		maxSize = initSize
 	}
-	bp := &BufferPool{
+	p := &Pool{
 		pool:       &sync.Pool{New: func() interface{} { return NewBuffer() }},
 		collection: make(chan *Buffer, maxSize),
 	}
 	for i := 0; i < initSize; i++ {
-		bp.pool.Put(bp.pool.New())
+		p.pool.Put(p.pool.New())
 	}
-	go bp.run()
-	return bp
+	go p.run()
+	return p
 }
