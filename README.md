@@ -17,8 +17,6 @@ Getting started
 package main
 
 import (
-	_ "mahjong/app/logic/msg"
-
 	"github.com/zerak/ego/config"
 	"github.com/zerak/ego/log"
 	"github.com/zerak/ego/service"
