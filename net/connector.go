@@ -1,8 +1,9 @@
 package net
 
 import (
-	"ego/log"
 	"net"
+
+	"github.com/zerak/ego/log"
 )
 
 type Connector interface {

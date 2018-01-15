@@ -5,8 +5,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	buf "ego/buffer"
-	"ego/log"
+	buf "github.com/zerak/ego/buffer"
+	"github.com/zerak/ego/log"
 )
 
 type EncryptFunc func(dst, src []byte)

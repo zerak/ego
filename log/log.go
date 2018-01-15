@@ -1,40 +1,37 @@
 package log
 
 import (
-	"fmt"
+	"github.com/zerak/log"
 
-	"github.com/golang/glog"
+	"github.com/zerak/ego/config"
 )
 
 func Init() {
-	glog.CopyStandardLogTo("INFO")
+	level, _ := log.ParseLevel(config.Opt.LogLevel)
+	defer log.Uninit(log.InitMultiFileAndColoredConsole(config.Opt.LogRoot, config.Opt.LogName, level))
+	log.SetLevel(level)
 }
 
 func Trace(format string, arg ...interface{}) {
-	fmt.Println(format, arg)
+	log.Trace(format, arg...)
 }
 
 func Info(format string, arg ...interface{}) {
-	//fmt.Printf(format, arg)
-	fmt.Println(format, arg)
+	log.Info(format, arg...)
 }
 
 func Debug(format string, arg ...interface{}) {
-	fmt.Println(format, arg)
+	log.Debug(format, arg...)
 }
 
 func Warn(format string, arg ...interface{}) {
-	fmt.Println(format, arg)
+	log.Warn(format, arg...)
 }
 
 func Error(format string, arg ...interface{}) {
-	fmt.Println(format, arg)
+	log.Error(format, arg...)
 }
 
 func Fatal(format string, arg ...interface{}) {
-	fmt.Println(format, arg)
-}
-
-func Flush() {
-	glog.Flush()
+	log.Fatal(format, arg...)
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/zerak/goconf"
 )
@@ -9,8 +10,17 @@ import (
 type Server struct {
 	conf *goconf.Config
 
+	// LogRoot the root path of the log
+	LogRoot string `ego:"log:root"`
+
+	// LogName the name of the log
+	LogName string `ego:"log:name"`
+
+	// LogLevel log level default debug
+	LogLevel string `ego:"log:level"`
+
 	// devMod dev/pro
-	DevMod string
+	DevMod string `ego:"server:mod"`
 
 	// [server]
 	// addr ip:port
@@ -26,14 +36,15 @@ type Server struct {
 }
 
 func (s Server) String() string {
-	str := fmt.Sprintf("addr:[%v]", s.Addr)
-	str += fmt.Sprintf("\nDb:\n")
+	str := fmt.Sprintf("log path:[%v/%v] level:[%v] ", s.LogRoot, s.LogName, s.LogLevel)
+	str += fmt.Sprintf("server addr:[%v] mod:%v ", s.Addr, s.DevMod)
+	str += fmt.Sprintf("Db:")
 	for k, v := range s.Db {
-		str += fmt.Sprintf("[%v]:[%v]\n", k, v)
+		str += fmt.Sprintf("[%v]:[%v] ", k, v)
 	}
-	str += fmt.Sprintf("cache:\n")
+	str += fmt.Sprintf("cache:")
 	for k, v := range s.Cache {
-		str += fmt.Sprintf("[%v]:[%v]\n", k, v)
+		str += fmt.Sprintf("[%v]:[%v] ", k, v)
 	}
 	return str
 }
@@ -42,13 +53,26 @@ var Opt Server
 
 func Init(path string) {
 	Opt.conf = goconf.New()
-	err := Opt.conf.Parse(path)
+	absPath, _ := filepath.Abs(path)
+	err := Opt.conf.Parse(absPath)
 	if err != nil {
 		panic(err)
 	}
 	err = Opt.conf.Unmarshal(&Opt, "ego")
 	if err != nil {
 		panic(err)
+	}
+	if Opt.LogRoot == "" {
+		Opt.LogRoot = "../"
+	}
+	if Opt.LogName == "" {
+		Opt.LogName = "app"
+	}
+	if Opt.LogLevel == "" {
+		Opt.LogLevel = "debug"
+	}
+	if Opt.DevMod == "" {
+		Opt.DevMod = "dev"
 	}
 }
 

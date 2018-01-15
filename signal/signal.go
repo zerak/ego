@@ -6,21 +6,21 @@ import (
 	"sync"
 )
 
-type SignalHandler func(os.Signal) bool
+type Handler func(os.Signal) bool
 
 var (
 	mu       sync.Mutex
-	handlers = map[os.Signal][]SignalHandler{}
+	handlers = map[os.Signal][]Handler{}
 	sigChan  = make(chan os.Signal)
 )
 
-func Register(sig os.Signal, handler SignalHandler) {
+func Register(sig os.Signal, handler Handler) {
 	mu.Lock()
 	defer mu.Unlock()
 	if g, ok := handlers[sig]; ok {
 		handlers[sig] = append(g, handler)
 	} else {
-		handlers[sig] = []SignalHandler{handler}
+		handlers[sig] = []Handler{handler}
 	}
 }
 

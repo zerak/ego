@@ -5,9 +5,9 @@ import (
 	"os"
 	"sync"
 
-	"ego/config"
-	"ego/log"
-	"ego/signal"
+	"github.com/zerak/ego/config"
+	"github.com/zerak/ego/log"
+	"github.com/zerak/ego/signal"
 )
 
 type Servicer interface {
@@ -28,7 +28,7 @@ type Servicer interface {
 	Stop(*sync.WaitGroup)
 }
 
-func Run(services ...Servicer) {
+func init() {
 	// 1 init config module
 	confFile := flag.String("c", "./conf/default.conf", " default config file path")
 	flag.Parse()
@@ -36,7 +36,9 @@ func Run(services ...Servicer) {
 
 	// 2 init log module
 	log.Init()
+}
 
+func Run(services ...Servicer) {
 	log.Info("run services")
 	for _, s := range services {
 		err := s.Init()

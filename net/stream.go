@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"ego/proto"
+	"github.com/zerak/ego/proto"
 )
 
 type StreamReader interface {

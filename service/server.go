@@ -3,8 +3,8 @@ package service
 import (
 	"sync"
 
-	"ego/config"
-	"ego/net"
+	"github.com/zerak/ego/config"
+	"github.com/zerak/ego/net"
 )
 
 type DefaultTcpServer struct {
