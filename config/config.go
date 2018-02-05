@@ -7,6 +7,7 @@ import (
 	"github.com/zerak/goconf"
 )
 
+// Server config of server
 type Server struct {
 	conf *goconf.Config
 
@@ -49,8 +50,28 @@ func (s Server) String() string {
 	return str
 }
 
+// Get get section config as string
+func (s *Server) Get(section string, tag string) (string, error) {
+	sec := s.conf.Get(section)
+	if sec == nil {
+		return "", fmt.Errorf("invalid section:%v", section)
+	}
+	return sec.String(tag)
+}
+
+// GetInt get section config as int
+func (s *Server) GetInt(section string, tag string) (int64, error) {
+	sec := s.conf.Get(section)
+	if sec == nil {
+		return 0, fmt.Errorf("invalid section:%v", section)
+	}
+	return sec.Int(tag)
+}
+
+// Opt the default server config
 var Opt Server
 
+// Init load init config file
 func Init(path string) {
 	Opt.conf = goconf.New()
 	absPath, _ := filepath.Abs(path)
@@ -76,17 +97,19 @@ func Init(path string) {
 	}
 }
 
-func (c *Server) Get(section string, tag string) (string, error) {
-	sec := c.conf.Get(section)
-	if sec != nil {
+// Get get special section config as string
+func Get(section string, tag string) (string, error) {
+	sec := Opt.conf.Get(section)
+	if sec == nil {
 		return "", fmt.Errorf("invalid section:%v", section)
 	}
 	return sec.String(tag)
 }
 
-func (c *Server) GetInt(section string, tag string) (int64, error) {
-	sec := c.conf.Get(section)
-	if sec != nil {
+// GetInt get special section config as int
+func GetInt(section string, tag string) (int64, error) {
+	sec := Opt.conf.Get(section)
+	if sec == nil {
 		return 0, fmt.Errorf("invalid section:%v", section)
 	}
 	return sec.Int(tag)
