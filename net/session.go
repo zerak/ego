@@ -136,12 +136,13 @@ func NewWSession(conn net.Conn, id string, conWriteSize int) *WSession {
 	}
 }
 
-// Read and Write session
+// RWSession Read and Write session
 type RWSession struct {
 	*WSession
 	rstream StreamReader
 }
 
+// SetDecrypt set decrypt function
 func (s *RWSession) SetDecrypt(decrypt DecryptFunc) {
 	s.rstream.SetDecrypt(decrypt)
 }
@@ -161,6 +162,7 @@ func (s *RWSession) startReadLoop(startRead, endRead chan<- struct{}) {
 	endRead <- struct{}{}
 }
 
+// Run run session
 func (s *RWSession) Run(onNewSession, onQuitSession func()) {
 	startRead := make(chan struct{})
 	startWrite := make(chan struct{})

@@ -7,21 +7,11 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
 )
-
-/*
-type Section struct {
-	data         map[string]string // key:value
-	dataOrder    []string
-	dataComments map[string][]string // key:comments
-	Name         string
-	comments     []string
-	Comment      string
-}
-*/
 
 const (
 	CRLF     = '\n'
@@ -33,18 +23,16 @@ const (
 	Include  = "include"
 )
 
-/*
-# include other file
-include ../common
-
-# comment
-commonKey commonVal
-commonKey commonVal1,commonVal2
-
-[sector]
-sectorKey sectorVal1,sectorVal2
-Section
-*/
+//	Section
+//	# include other file
+//	include ../common
+//
+//	# comment
+//	commonKey commonVal
+//	commonKey commonVal1,commonVal2
+//
+//	[sector]
+//	sectorKey sectorVal1,sectorVal2
 type Section struct {
 	delimit string
 	sector  string
@@ -107,23 +95,20 @@ func (s *Section) Float(key string) (float64, error) {
 }
 
 // Bool get config boolean value.
-//
 // "yes", "1", "y", "true", "enable" means true.
-//
 // "no", "0", "n", "false", "disable" means false.
-//
 // if the specified value unknown then return false.
 func (s *Section) Bool(key string) (bool, error) {
-	if v, ok := s.val[key]; ok {
-		parseBool := func(v string) bool {
-			if v == "true" || v == "yes" || v == "1" || v == "y" || v == "enable" {
-				return true
-			} else if v == "false" || v == "no" || v == "0" || v == "n" || v == "disable" {
-				return false
-			} else {
-				return false
-			}
+	parseBool := func(v string) bool {
+		if v == "true" || v == "yes" || v == "1" || v == "y" || v == "enable" {
+			return true
+		} else if v == "false" || v == "no" || v == "0" || v == "n" || v == "disable" {
+			return false
+		} else {
+			return false
 		}
+	}
+	if v, ok := s.val[key]; ok {
 		return parseBool(strings.ToLower(v)), nil
 	} else {
 		return false, &NoKeyError{Key: key, Section: s.sector}
@@ -131,11 +116,8 @@ func (s *Section) Bool(key string) (bool, error) {
 }
 
 // MemSize Byte get config byte number value.
-//
 // 1kb = 1k = 1024.
-//
 // 1mb = 1m = 1024 * 1024.
-//
 // 1gb = 1g = 1024 * 1024 * 1024.
 func (s *Section) MemSize(key string) (int, error) {
 	if v, ok := s.val[key]; ok {
@@ -175,11 +157,8 @@ func parseMemory(v string) (int, error) {
 }
 
 // Duration get config second value.
-//
 // 1s = 1sec = 1.
-//
 // 1m = 1min = 60.
-//
 // 1h = 1hour = 60 * 60.
 func (s *Section) Duration(key string) (time.Duration, error) {
 	if v, ok := s.val[key]; ok {
@@ -415,8 +394,37 @@ const (
 	Hour   = 60 * Minute
 )
 
+// An InvalidUnmarshalError describes an invalid argument passed to Unmarshal.
+// (The argument to Unmarshal must be a non-nil pointer.)
+type InvalidUnmarshalError struct {
+	Type reflect.Type
+}
+
+func (e *InvalidUnmarshalError) Error() string {
+	if e.Type == nil {
+		return "goconf: Unmarshal(nil)"
+	}
+	if e.Type.Kind() != reflect.Ptr {
+		return "goconf: Unmarshal(non-pointer " + e.Type.String() + ")"
+	}
+	return "goconf: Unmarshal(nil " + e.Type.String() + ")"
+}
+
 // Unmarshal unmarshal
-func (c *Config) Unmarshal(v interface{}) error {
+func (c *Config) Unmarshal(v interface{}, flag string) error {
+	vv := reflect.ValueOf(v)
+	if vv.Kind() != reflect.Ptr || vv.IsNil() {
+		return &InvalidUnmarshalError{Type: reflect.TypeOf(v)}
+	}
+
 	// todo
+	rv := vv.Elem()
+	rt := rv.Type()
+	n := rv.NumField()
+	for i := 0; i < n; i++ {
+		vf := rv.Field(i)
+		tf := rt.Field(i)
+		fmt.Println("vf:", vf, " tf:", tf)
+	}
 	return nil
 }

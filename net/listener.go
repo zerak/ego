@@ -1,6 +1,8 @@
 package net
 
-import "net"
+import (
+	"net"
+)
 
 type Listener interface {
 	// ListenAndServe listen on addrStr and serve

@@ -14,6 +14,11 @@ func Test_conf(t *testing.T) {
 	t.Log(Opt.Get("server", "addr"))
 }
 
+type Conf struct {
+	Log    Section `ego:"log"`
+	Server Section `ego:"server"`
+}
+
 func TestConfig_Parse(t *testing.T) {
 	c := New()
 	err := c.Parse("./conf/default.conf")
@@ -25,4 +30,8 @@ func TestConfig_Parse(t *testing.T) {
 
 	str, _ := c.Get("log_common").String("level")
 	t.Log("section:", str)
+
+	conf := Conf{}
+	c.Unmarshal(&conf, "ego")
+	t.Log(conf)
 }

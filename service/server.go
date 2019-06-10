@@ -56,29 +56,6 @@ func (t DefaultRpcServer) Stop(group *sync.WaitGroup) {
 	group.Done()
 }
 
-type DefaultHttpServer struct {
-}
-
-func (t DefaultHttpServer) Name() string {
-	return "DefaultHttpServer"
-}
-
-func (t DefaultHttpServer) Init() error {
-	return nil
-}
-
-func (t DefaultHttpServer) Register(h interface{}) error {
-	return nil
-}
-
-func (t DefaultHttpServer) Start() error {
-	return nil
-}
-
-func (t DefaultHttpServer) Stop(group *sync.WaitGroup) {
-	group.Done()
-}
-
 // NewTcp new a tcp service
 func NewTcp(conf config.Server) *DefaultTcpServer {
 	return &DefaultTcpServer{conf: conf}
@@ -92,9 +69,4 @@ func NewTcp(conf config.Server) *DefaultTcpServer {
 // NewRpc new a rpc service
 func NewRpc() *DefaultRpcServer {
 	return &DefaultRpcServer{}
-}
-
-// NewHttp new a http service
-func NewHttp() *DefaultHttpServer {
-	return &DefaultHttpServer{}
 }
